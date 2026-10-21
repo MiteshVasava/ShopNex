@@ -1,0 +1,35 @@
+<?php require_once __DIR__.'/config.php'; $u = user(); $flash = get_flash(); $storeName = site_setting('store_name', 'ShopNex'); $isAdminArea = (str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/admin/') && ($u['role'] ?? '') === 'admin'); $isStaffArea = (($u['role'] ?? '') === 'staff' && (str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/staff/') || str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/admin/'))); $sitePrimary = site_setting('theme_primary','#6f2cff'); $siteAccent = site_setting('theme_accent','#ff3e8a'); $siteFontBase = site_setting('font_base','Inter, system-ui, sans-serif'); $siteFontHeading = site_setting('font_heading','Inter, system-ui, sans-serif'); $siteFontHero = site_setting('font_hero','Inter, system-ui, sans-serif'); $siteFontProducts = site_setting('font_products','Inter, system-ui, sans-serif'); ?>
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?= e($title ?? 'ShopNex') ?> | ShopNex</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="<?= BASE_URL ?>/assets/css/style.css" rel="stylesheet">
+<?php if (!$isAdminArea && !$isStaffArea): ?>
+<style>
+:root{--purple:<?=e($sitePrimary)?>;--purple2:<?=e($siteAccent)?>;--font-base:<?=e($siteFontBase)?>;--font-heading:<?=e($siteFontHeading)?>;--font-hero:<?=e($siteFontHero)?>;--font-products:<?=e($siteFontProducts)?>}
+body{font-family:var(--font-base)}h1,h2,h3,h4,h5,.section-title,.section-heading{font-family:var(--font-heading)}.shopnex-hero h1{font-family:var(--font-hero)}.product-card{font-family:var(--font-products)}
+</style>
+<?php endif; ?>
+</head><body>
+<?php if ($isAdminArea || $isStaffArea): ?>
+<nav class="navbar navbar-expand-lg navbar-dark <?= $isAdminArea ? 'bg-dark' : 'bg-primary' ?> border-bottom sticky-top"><div class="container"><a class="navbar-brand fw-bold" href="<?= BASE_URL ?>/<?= $isAdminArea ? 'admin/index.php' : 'staff/index.php' ?>"><i class="bi bi-speedometer2 me-2"></i>ShopNex <?= $isAdminArea ? 'Admin' : 'Staff' ?></a><button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#opsNav"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="opsNav"><ul class="navbar-nav me-auto">
+<?php if (($u['role'] ?? '') === 'admin' || user_can('products')): ?><li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/<?= $isAdminArea ? 'admin' : 'staff' ?>/products.php">Products</a></li><?php endif; ?>
+<?php if (($u['role'] ?? '') === 'admin' || user_can('inventory')): ?><li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/<?= $isAdminArea ? 'admin' : 'staff' ?>/inventory.php">Inventory</a></li><?php endif; ?>
+<?php if (($u['role'] ?? '') === 'admin' || user_can('orders')): ?><li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/<?= $isAdminArea ? 'admin' : 'staff' ?>/orders.php">Orders</a></li><?php endif; ?>
+<?php if (($u['role'] ?? '') === 'admin' || user_can('support')): ?><li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/<?= $isAdminArea ? 'admin' : 'staff' ?>/support.php">Support</a></li><?php endif; ?>
+<?php if (($u['role'] ?? '') === 'admin' || user_can('manage_site')): ?><li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/website.php">Manage Site</a></li><?php endif; ?>
+<?php if (($u['role'] ?? '') === 'admin'): ?><li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/staff.php">Staff & Permissions</a></li><?php elseif (user_can('manage_staff')): ?><li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/staff/team.php">Add Staff</a></li><?php endif; ?>
+</ul><div class="d-flex align-items-center gap-3 text-white"><a class="nav-link text-white" href="<?= BASE_URL ?>/<?= $isAdminArea ? 'admin' : 'staff' ?>/profile.php"><i class="bi bi-person-circle me-1"></i>Profile</a><span><?= e($u['name'] ?? '') ?></span><a class="btn btn-sm btn-outline-light" href="<?= BASE_URL ?>/logout.php?workspace=operations">Logout</a></div></div></div></nav>
+<?php else: ?>
+<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top"><div class="container">
+<a class="navbar-brand fw-bold text-purple" href="<?= BASE_URL ?>/index.php"><i class="bi bi-bag-heart-fill me-2"></i><?= e($storeName) ?></a>
+<button class="navbar-toggler" data-bs-toggle="offcanvas" data-bs-target="#mobileNav"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse"><form class="d-flex mx-lg-4 flex-grow-1" action="<?= BASE_URL ?>/products.php"><input name="q" class="form-control search-box" placeholder="Search products, brands and more..."><button class="btn btn-purple"><i class="bi bi-search"></i></button></form>
+<ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2"><li><a class="nav-link" href="<?= BASE_URL ?>/wishlist.php"><i class="bi bi-heart"></i> Wishlist</a></li><li><a class="nav-link position-relative" href="<?= BASE_URL ?>/cart.php"><i class="bi bi-cart3"></i> Cart<?php if(cart_count()): ?><span class="badge bg-purple rounded-pill cart-badge"><?= cart_count() ?></span><?php endif; ?></a></li>
+
+<?php if($u): ?><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-person-circle"></i> <?= e($u['name']) ?></a><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="<?= BASE_URL ?>/account.php">Profile</a></li><li><a class="dropdown-item" href="<?= BASE_URL ?>/orders.php">My Orders</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="<?= BASE_URL ?>/logout.php">Logout</a></li></ul></li><?php else: ?><li><a class="btn btn-outline-purple btn-sm" href="<?= BASE_URL ?>/login.php">Login</a></li><?php endif; ?></ul></div></div></nav>
+<?php endif; ?>
+<div class="offcanvas offcanvas-start" id="mobileNav"><div class="offcanvas-header"><h5 class="text-purple">ShopNex</h5><button class="btn-close" data-bs-dismiss="offcanvas"></button></div><div class="offcanvas-body"><form action="<?= BASE_URL ?>/products.php" class="mb-3"><input name="q" class="form-control" placeholder="Search products..."></form><a class="d-block py-2" href="<?= BASE_URL ?>/index.php">Home</a><a class="d-block py-2" href="<?= BASE_URL ?>/products.php">All Categories / Shop</a><a class="d-block py-2" href="<?= BASE_URL ?>/products.php">Products</a><a class="d-block py-2" href="<?= BASE_URL ?>/wishlist.php">Wishlist</a><a class="d-block py-2" href="<?= BASE_URL ?>/cart.php">Cart</a><a class="d-block py-2" href="<?= BASE_URL ?>/orders.php">My Orders</a><a class="d-block py-2" href="<?= BASE_URL ?>/account.php">Profile & Addresses</a></div></div>
+<?php if($flash): ?><div class="container mt-3"><div class="alert alert-<?= e($flash[0]) ?> alert-dismissible fade show"><?= e($flash[1]) ?><button class="btn-close" data-bs-dismiss="alert"></button></div></div><?php endif; ?>
+<main class="container py-4">
